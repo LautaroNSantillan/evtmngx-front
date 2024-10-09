@@ -15,22 +15,26 @@ export class NavbarComponent {
         {
           label: 'Home',
           icon: 'pi pi-home',
+          routerLink: '/home',
         },
         ...(this.isUserLoggedIn
           ? [
               {
                 label: 'Logout',
                 icon: 'pi pi-sign-out',
+                routerLink: '/logout',
               },
             ]
           : [
               {
                 label: 'Login',
                 icon: 'pi pi-sign-in',
+                routerLink: '/login',
               },
               {
                 label: 'Register',
                 icon: 'pi pi-user-plus',
+                routerLink: '/register',
               },
             ]),
         {
