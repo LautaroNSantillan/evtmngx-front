@@ -15,6 +15,9 @@ import { ButtonModule } from 'primeng/button';
 import { MenubarModule } from 'primeng/menubar';
 import { TableModule } from 'primeng/table';
 import { NavbarComponent } from './shared/navbar/navbar.component';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -29,12 +32,15 @@ import { NavbarComponent } from './shared/navbar/navbar.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
     //primeng
     ToolbarModule,
     PanelModule,
     ButtonModule,
     MenubarModule,
-    TableModule
+    TableModule,
+    InputTextModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

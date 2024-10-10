@@ -1,1 +1,42 @@
-<p>login works!</p>
+<div class="login-container">
+    <h2>Login</h2>
+    <form (ngSubmit)="login()" [formGroup]="loginForm" class="p-fluid">
+      <div class="p-field">
+        <label for="username">Username</label>
+        <input 
+          formControlName="username"
+          id="username" 
+          type="text" 
+          pInputText 
+          [(ngModel)]="username" 
+          name="username" 
+          required
+        />
+      </div>
+      <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="error">
+        Username is required
+      </div>
+  
+      <div class="p-field">
+        <label for="password">Password</label>
+        <input 
+          formControlName="password"
+          id="password" 
+          type="password" 
+          pInputText 
+          [(ngModel)]="password" 
+          name="password" 
+          required
+        />
+      </div>
+      <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error">
+        Password is required
+      </div>
+  
+      <div class="p-field">
+        <button pButton type="submit" label="Sign In" [disabled]="loginForm.invalid"></button>
+      </div>
+    </form>
+  </div>
+  
+  
