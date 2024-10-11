@@ -54,7 +54,12 @@ import { ApiUrlInterceptor } from './interceptors/api-url.interceptor';
     RippleModule,
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useValue: ApiUrlInterceptor, multi: true }
-  ],  bootstrap: [AppComponent]
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApiUrlInterceptor,
+      multi: true, 
+    },
+  ],  
+  bootstrap: [AppComponent]
 })
 export class AppModule { }

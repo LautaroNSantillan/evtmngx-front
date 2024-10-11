@@ -1,78 +1,99 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
+import { LoginService } from '../../services/auth/login.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css'
+  styleUrls: ['./navbar.component.css'] 
 })
-export class NavbarComponent {
-    items: MenuItem[] = [];
-    isUserLoggedIn: boolean = false;
+export class NavbarComponent implements OnInit , OnDestroy {
+  items: MenuItem[] = [];
+  isUserLoggedIn: boolean = false;
+  loggedInSub?: Subscription;
+  constructor(private loginService: LoginService) {}
+
+  ngOnDestroy(): void {
+    this.loggedInSub?.unsubscribe();
+  }
+
+  ngOnInit() {
+    this.loginService.isLoggedIn.subscribe({
+      next: (userLoggedIn) => {
+        this.isUserLoggedIn = userLoggedIn;
+        this.updateMenuItems(); 
+      },
+    });
+
+    this.updateMenuItems();
+  }
+
+  private updateMenuItems() {
+    this.items = [
+      {
+        label: 'Home',
+        icon: 'pi pi-home',
+        routerLink: '/home',
+      },
+      ...(this.isUserLoggedIn
+        ? [
+            {
+              label: 'Logout',
+              icon: 'pi pi-sign-out',
+              routerLink: '/logout',
+            },
+          ]
+        : [
+            {
+              label: 'Login',
+              icon: 'pi pi-sign-in',
+              routerLink: '/login',
+            },
+            {
+              label: 'Register',
+              icon: 'pi pi-user-plus',
+              routerLink: '/register',
+            },
+          ]),
+      {
+        label: 'Projects',
+        icon: 'pi pi-search',
+        items: [
+          {
+            label: 'Components',
+            icon: 'pi pi-bolt',
+          },
+          {
+            label: 'Blocks',
+            icon: 'pi pi-server',
+          },
+          {
+            label: 'UI Kit',
+            icon: 'pi pi-pencil',
+          },
+          {
+            label: 'Templates',
+            icon: 'pi pi-palette',
+            items: [
+              {
+                label: 'Apollo',
+                icon: 'pi pi-palette',
+              },
+              {
+                label: 'Ultima',
+                icon: 'pi pi-palette',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        label: 'Contact',
+        icon: 'pi pi-envelope',
+      },
+    ];
+  }
+
   
-    ngOnInit() {
-      this.items = [
-        {
-          label: 'Home',
-          icon: 'pi pi-home',
-          routerLink: '/home',
-        },
-        ...(this.isUserLoggedIn
-          ? [
-              {
-                label: 'Logout',
-                icon: 'pi pi-sign-out',
-                routerLink: '/logout',
-              },
-            ]
-          : [
-              {
-                label: 'Login',
-                icon: 'pi pi-sign-in',
-                routerLink: '/login',
-              },
-              {
-                label: 'Register',
-                icon: 'pi pi-user-plus',
-                routerLink: '/register',
-              },
-            ]),
-        {
-          label: 'Projects',
-          icon: 'pi pi-search',
-          items: [
-            {
-              label: 'Components',
-              icon: 'pi pi-bolt',
-            },
-            {
-              label: 'Blocks',
-              icon: 'pi pi-server',
-            },
-            {
-              label: 'UI Kit',
-              icon: 'pi pi-pencil',
-            },
-            {
-              label: 'Templates',
-              icon: 'pi pi-palette',
-              items: [
-                {
-                  label: 'Apollo',
-                  icon: 'pi pi-palette',
-                },
-                {
-                  label: 'Ultima',
-                  icon: 'pi pi-palette',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          label: 'Contact',
-          icon: 'pi pi-envelope',
-        },
-      ];
-    }
 }

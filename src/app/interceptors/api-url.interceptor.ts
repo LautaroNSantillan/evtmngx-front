@@ -10,6 +10,7 @@ export class ApiUrlInterceptor implements HttpInterceptor {
       url: `${environment.apiUrl}/${req.url}`
     });
 
+    console.log('Intercepted and modified URL:', apiReq.url);
     return next.handle(apiReq);
   }
 }
