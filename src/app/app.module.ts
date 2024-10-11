@@ -32,7 +32,12 @@ import { InputIconModule } from 'primeng/inputicon';
 import { TreeTableModule } from 'primeng/treetable';
 import { EventDetailsComponent } from './components/event-details/event-details.component';
 import { DialogModule } from 'primeng/dialog';
-
+import { ProfileComponent } from './pages/profile/profile.component';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { CardModule } from 'primeng/card';
+import { JwtInterceptorService } from './interceptors/jwt-interceptor.service';
+import { ErrorInterceptorService } from './interceptors/error-interceptor.service';
 
 @NgModule({
   declarations: [
@@ -44,7 +49,8 @@ import { DialogModule } from 'primeng/dialog';
     NavbarComponent,
     RegisterComponent,
     EventTableComponent,
-    EventDetailsComponent
+    EventDetailsComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,
@@ -68,7 +74,10 @@ import { DialogModule } from 'primeng/dialog';
     IconFieldModule,
     InputIconModule,
     TreeTableModule,
-    DialogModule
+    DialogModule,
+    AvatarModule,
+    AvatarGroupModule,
+    CardModule
   ],
   providers: [
     {
@@ -76,6 +85,17 @@ import { DialogModule } from 'primeng/dialog';
       useClass: ApiUrlInterceptor,
       multi: true, 
     },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptorService,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptorService,
+      multi: true,
+    },
+    
   ],  
   bootstrap: [AppComponent]
 })

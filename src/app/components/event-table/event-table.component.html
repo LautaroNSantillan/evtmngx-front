@@ -55,7 +55,7 @@
 
   <ng-template pTemplate="body" let-event >
     <tr>
-      <td>{{ event.id }}</td>
+      <td>{{ truncateDescription(event.id) }}</td>
       <td>{{ event.name }}</td>
       <td>{{ truncateDescription(event.description) }}</td>
       <td>{{ event.organizer.username }}</td>

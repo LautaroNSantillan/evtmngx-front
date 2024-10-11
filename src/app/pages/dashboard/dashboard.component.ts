@@ -10,9 +10,7 @@ import { Subscription } from 'rxjs';
 })
 export class DashboardComponent implements OnInit, OnDestroy{
   isUserLoggedIn: boolean = false;
-  userData?: User = undefined;
   private isLoggedInSubscription?: Subscription;
-  private currentUserDataSubscription?: Subscription;
   constructor(private loginService: LoginService) {}
 
   ngOnInit() {
@@ -22,15 +20,9 @@ export class DashboardComponent implements OnInit, OnDestroy{
       },
     });
 
-    this.currentUserDataSubscription = this.loginService.currentUserData.subscribe({
-      next: (userData) => {
-        this.userData = userData;
-      },
-    });
   }
 
   ngOnDestroy(): void {
     this.isLoggedInSubscription?.unsubscribe();
-    this.currentUserDataSubscription?.unsubscribe();
   }
 }

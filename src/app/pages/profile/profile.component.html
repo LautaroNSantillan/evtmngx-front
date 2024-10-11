@@ -1,0 +1,59 @@
+
+<p-card styleClass="p-mb-3">
+    <div class="p-grid p-align-center">
+      <!-- Avatar and Username -->
+      <div class="p-col-12 p-md-3 p-text-center">
+        <p-avatar
+          [label]="user.firstName.charAt(0) + user.lastName.charAt(0)"
+          styleClass="p-mr-2"
+          size="xlarge"
+        ></p-avatar>
+      </div>
+  
+      <!-- User Details -->
+      <div class="p-col-12 p-md-9">
+        <h2 class="p-mb-1">{{ user.firstName }} {{ user.lastName }}</h2>
+        <p class="p-text-secondary p-mb-3">{{ user.username }}</p>
+  
+        <!-- Role -->
+        <p class="p-text-bold">
+          <i class="pi pi-user p-mr-1"></i> Role: {{ user.role }}
+        </p>
+  
+        <!-- Signup Date -->
+        <p>
+          <i class="pi pi-calendar p-mr-1"></i> Signup Date:
+          {{ user.signupDate | date: 'longDate' }}
+        </p>
+  
+        <!-- Number of Comments -->
+        <p>
+          <i class="pi pi-comments p-mr-1"></i> Comments authored:
+          {{ user.authoredComments.size || 0 }}
+        </p>
+      </div>
+    </div>
+    <button pButton type="button" label="Edit Profile" icon="pi pi-pencil" (click)="showModal()"></button>
+  </p-card>
+
+
+
+<!-- Profile Edit Modal -->
+<p-dialog header="Edit Profile" [(visible)]="display" [modal]="true" [style]="{ width: '50vw' }">
+  <div>
+    <div class="p-field">
+      <label for="firstName">First Name</label>
+      <input id="firstName" type="text" pInputText [(ngModel)]="toEditUser.firstName" />
+    </div>
+    <div class="p-field">
+      <label for="lastName">Last Name</label>
+      <input id="lastName" type="text" pInputText [(ngModel)]="toEditUser.lastName" />
+    </div>
+    <p-footer>
+      <button pButton type="button" label="Save" icon="pi pi-check" (click)="saveChanges()" [disabled]="!formValid()"></button>
+      <button pButton type="button" label="Cancel" icon="pi pi-times" (click)="hideModal()"></button>
+    </p-footer>
+  </div>
+</p-dialog>
+
+  

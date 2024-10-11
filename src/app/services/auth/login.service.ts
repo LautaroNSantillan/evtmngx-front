@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
 import { LoginRequest } from './interfaces/login-request';
 import { HttpClient, HttpErrorResponse} from '@angular/common/http';
-import { catchError, Observable, throwError, BehaviorSubject, tap } from 'rxjs';
+import { catchError, Observable, throwError, BehaviorSubject, tap, map } from 'rxjs';
 import { LoginResponse } from './interfaces/login-response';
 import { User } from '../../interfaces/user';
+import { TokenService } from './token.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
   isLoggedInBool: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  currentUserData: BehaviorSubject<User> = new BehaviorSubject<User>({
+  currentUserData: BehaviorSubject<String> = new BehaviorSubject<String>("")/* ({
     id: '',
     firstName: '',
     lastName: '',
@@ -18,29 +19,42 @@ export class LoginService {
     signupDate: '',
     authoredComments: new Set<Comment>(),
     role: ''
-  });
-  constructor(private http:HttpClient) { }
+  }); */
+  constructor(private http:HttpClient, private tokenService:TokenService) { 
+    this.isLoggedInBool = new BehaviorSubject<boolean>(sessionStorage
+      .getItem('isLoggedIn')!=null);
+    this.currentUserData = new BehaviorSubject<String>(sessionStorage
+      .getItem('token')|| "");
+    
+  }
 
-  get userData():Observable<User> {
+  get userData():Observable<String> {
     return this.currentUserData.asObservable();
   }
   get isLoggedIn():Observable<boolean> {
     return this.isLoggedInBool.asObservable();
   }
 
-  login(credentials: LoginRequest): Observable<LoginResponse> {
+  login(credentials: LoginRequest): Observable<string> {
     return this.http.post<LoginResponse>('auth/login', credentials)
       .pipe(
         tap(userData => {
           if (userData && userData.user) {
-            this.currentUserData.next(userData.user); // Ensure `userData.user` is defined
+            this.tokenService.setToken(userData.jwtToken)
+            this.currentUserData.next(userData.jwtToken);
             this.isLoggedInBool.next(true);
           } else {
             console.error("Invalid user data:", userData);
           }
         }),
+        map((userData)=> userData.jwtToken),
         catchError(this.handleError)
       );
+  }
+
+  logout():void{
+    this.tokenService.logout();
+    this.isLoggedInBool.next(false);
   }
   
 
