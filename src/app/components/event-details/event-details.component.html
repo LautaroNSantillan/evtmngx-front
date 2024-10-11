@@ -1,0 +1,39 @@
+<p-dialog
+  [(visible)]="display"
+  [modal]="true"
+  [header]="event.name"
+  [style]="{ width: '50vw' }"
+  (onHide)="onClose()"
+  [maximizable]="true"
+>
+  <div class="p-grid">
+    <div class="p-col-12">
+      <h3>Date:</h3>
+      <p>{{ event.eventLocations[0].date }}</p>
+      <p>{{ event.eventLocations[0].time }}</p>
+    </div>
+    <div class="p-col-12">
+      <h3> <i class="pi pi-map-marker"></i> Location:</h3>
+      <p>Country: {{ event.eventLocations[0].location.country }}</p>
+      <p>Line 1: {{ event.eventLocations[0].location.line1  }}, Line 2: {{ event.eventLocations[0].location.line2  }}</p>
+      <p>Postal code: {{ event.eventLocations[0].location.postal  }}</p>
+    </div>
+    <div class="p-col-12">
+      <h3>Description:</h3>
+      <p>{{ event.description }}</p>
+    </div>
+    <div class="p-col-12">
+      <h3>Organizer:</h3>
+      <p>{{ event.organizer.firstName }}</p>
+    </div>
+  </div>
+  <p-footer>
+    <button
+      pButton
+      type="button"
+      label="Close"
+      icon="pi pi-times"
+      (click)="onClose()"
+    ></button>
+  </p-footer>
+</p-dialog>

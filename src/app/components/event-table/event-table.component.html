@@ -1,5 +1,14 @@
 <p-messages [enableService]="true"></p-messages>
 
+
+<app-event-details 
+*ngIf="selectedEvent!==null && selectedEvent !== undefined"
+[event]="selectedEvent" 
+[display]="displayEventDetails" 
+(closeModal)="onCloseDetails()">
+</app-event-details>
+
+
 <p-table
   #dt2
   [value]="events"

@@ -30,6 +30,8 @@ import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TreeTableModule } from 'primeng/treetable';
+import { EventDetailsComponent } from './components/event-details/event-details.component';
+import { DialogModule } from 'primeng/dialog';
 
 
 @NgModule({
@@ -41,7 +43,8 @@ import { TreeTableModule } from 'primeng/treetable';
     LoginComponent,
     NavbarComponent,
     RegisterComponent,
-    EventTableComponent
+    EventTableComponent,
+    EventDetailsComponent
   ],
   imports: [
     BrowserModule,
@@ -64,7 +67,8 @@ import { TreeTableModule } from 'primeng/treetable';
     TagModule,
     IconFieldModule,
     InputIconModule,
-    TreeTableModule
+    TreeTableModule,
+    DialogModule
   ],
   providers: [
     {

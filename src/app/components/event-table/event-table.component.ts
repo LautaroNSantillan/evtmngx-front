@@ -26,6 +26,11 @@ export class EventTableComponent implements OnInit, OnDestroy {
   isLoggedInSubscription?: Subscription;
   isErrorDisplayed = false;
 
+  selectedEvent: any;
+  displayEventDetails: boolean = false;
+
+
+
   constructor(private eventService: EventService, private loginService:LoginService, private messageService: MessageService) {}
 
   ngOnInit(): void {
@@ -70,11 +75,6 @@ export class EventTableComponent implements OnInit, OnDestroy {
     event.isAttending = !event.isAttending; // Toggle attendance status
     console.log(`${event.isAttending ? 'Attending' : 'Not Attending'}: ${event.name}`);
   }
-
-  viewDetails(event: any) {
-    console.log('Viewing details for:', event);
-  }
-
   onSearchChange(value: string) {
     console.log(this.searchKeyword);
     this.searchSubject.next(value);
@@ -91,5 +91,18 @@ export class EventTableComponent implements OnInit, OnDestroy {
   truncateDescription(description: string, maxLength: number = 25): string {
     if (!description) return 'No description available';
     return description.length > maxLength ? description.substring(0, maxLength) + '...' : description;
+  }
+
+
+  viewDetails(event: any) {
+    this.selectedEvent = event; 
+    this.displayEventDetails = true; 
+    console.log('Viewing details for:', event);
+
+  }
+
+  onCloseDetails() {
+    this.displayEventDetails = false; 
+    this.selectedEvent = null; 
   }
 }
