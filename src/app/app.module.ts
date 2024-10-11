@@ -25,6 +25,11 @@ import { RippleModule } from 'primeng/ripple';
 import { ApiUrlInterceptor } from './interceptors/api-url.interceptor';
 import { RegisterComponent } from './pages/register/register.component';
 import { CheckboxModule } from 'primeng/checkbox';
+import { EventTableComponent } from './components/event-table/event-table.component';
+import { TagModule } from 'primeng/tag';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { TreeTableModule } from 'primeng/treetable';
 
 
 @NgModule({
@@ -35,7 +40,8 @@ import { CheckboxModule } from 'primeng/checkbox';
     DashboardComponent,
     LoginComponent,
     NavbarComponent,
-    RegisterComponent
+    RegisterComponent,
+    EventTableComponent
   ],
   imports: [
     BrowserModule,
@@ -55,6 +61,10 @@ import { CheckboxModule } from 'primeng/checkbox';
     MessagesModule,
     RippleModule,
     CheckboxModule,
+    TagModule,
+    IconFieldModule,
+    InputIconModule,
+    TreeTableModule
   ],
   providers: [
     {
