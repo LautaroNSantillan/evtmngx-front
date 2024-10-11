@@ -1,61 +1,85 @@
-<div class="login-container">
-  <h2>Login</h2>
-  <p-messages [enableService]="true"></p-messages>
-
-  <form (ngSubmit)="login()" [formGroup]="loginForm" class="p-fluid">
-    <div class="p-field">
-      <label for="username">Username</label>
-      <input
-        formControlName="username"
-        id="username"
-        type="text"
-        pInputText
-        name="username"
-        required
-      />
-    </div>
-    <!-- control  -->
-    <div
-      *ngIf="getUsername?.invalid && (getUsername?.dirty || getUsername?.touched)"
-      class="custom-alert"
+<div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
+  <div class="text-center mb-5">
+    <div class="text-900 text-3xl font-medium mb-3">Welcome Back</div>
+    <span class="text-600 font-medium line-height-3"
+      >Don't have an account?</span
     >
-      <div *ngIf="getUsername?.hasError('required')">Name is required.</div>
-      <div *ngIf="getUsername?.hasError('minlength')">
-        Name must be at least 4 characters long.
-      </div>
-      <div *ngIf="getUsername?.hasError('email')">Name cannot be Bob.</div>
-    </div>
-
-    <div class="p-field">
-      <label for="password">Password</label>
-      <input
-        formControlName="password"
-        id="password"
-        type="password"
-        pInputText
-        name="password"
-        required
-      />
-    </div>
-    <!-- control  -->
-    <div
-      *ngIf="getPassword.invalid && (getPassword.dirty || getPassword.touched)"
-      class="alert alert-danger"
+    <a
+      class="font-medium no-underline ml-2 text-blue-500 cursor-pointer"
+      routerLink="/register"
+      >Create today!</a
     >
-      <div *ngIf="getPassword.hasError('required')">Name is required.</div>
-      <div *ngIf="getPassword.hasError('minlength')">
-        Name must be at least 4 characters long.
-      </div>
-      <div *ngIf="getPassword.hasError('forbiddenName')">Name cannot be Bob.</div>
-    </div>
+  </div>
+  <div class="login-container">
+    <h2>Login</h2>
+    <p-messages [enableService]="true"></p-messages>
 
-    <div class="p-field">
-      <button
-        pButton
-        type="submit"
-        label="Sign In"
-        [disabled]="loginForm.invalid"
-      ></button>
-    </div>
-  </form>
+    <form (ngSubmit)="login()" [formGroup]="loginForm" class="p-fluid">
+      <div class="p-field">
+        <label for="username">Username</label>
+        <input
+          formControlName="username"
+          id="username"
+          type="text"
+          pInputText
+          name="username"
+          required
+          placeholder="Username"
+        />
+      </div>
+      <!-- Username validation messages -->
+      <div
+        *ngIf="
+          getUsername?.invalid && (getUsername?.dirty || getUsername?.touched)
+        "
+        class="custom-alert"
+      >
+        <div *ngIf="getUsername?.hasError('required')">
+          Username is required.
+        </div>
+        <div *ngIf="getUsername?.hasError('minlength')">
+          Username must be at least 4 characters long.
+        </div>
+        <div *ngIf="getUsername?.hasError('email')">Invalid email format.</div>
+      </div>
+
+      <div class="p-field">
+        <label for="password">Password</label>
+        <input
+          formControlName="password"
+          id="password"
+          type="password"
+          pInputText
+          name="password"
+          placeholder="********"
+          required
+        />
+      </div>
+      <!-- Password validation messages -->
+      <div
+        *ngIf="
+          getPassword.invalid && (getPassword.dirty || getPassword.touched)
+        "
+        class="alert alert-danger"
+      >
+        <div *ngIf="getPassword.hasError('required')">
+          Password is required.
+        </div>
+        <div *ngIf="getPassword.hasError('minlength')">
+          Password must be at least 4 characters long.
+        </div>
+      </div>
+
+      <div class="flex align-items-center justify-content-between mb-6"></div>
+
+      <div class="p-field">
+        <button
+          pButton
+          type="submit"
+          label="Sign In"
+          [disabled]="loginForm.invalid"
+        ></button>
+      </div>
+    </form>
+  </div>
 </div>

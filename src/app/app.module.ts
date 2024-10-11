@@ -23,7 +23,8 @@ import { MessageModule } from 'primeng/message';
 import { MessagesModule } from 'primeng/messages';
 import { RippleModule } from 'primeng/ripple';
 import { ApiUrlInterceptor } from './interceptors/api-url.interceptor';
-
+import { RegisterComponent } from './pages/register/register.component';
+import { CheckboxModule } from 'primeng/checkbox';
 
 
 @NgModule({
@@ -33,7 +34,8 @@ import { ApiUrlInterceptor } from './interceptors/api-url.interceptor';
     FooterComponent,
     DashboardComponent,
     LoginComponent,
-    NavbarComponent
+    NavbarComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,
@@ -52,6 +54,7 @@ import { ApiUrlInterceptor } from './interceptors/api-url.interceptor';
     MessageModule,
     MessagesModule,
     RippleModule,
+    CheckboxModule,
   ],
   providers: [
     {
