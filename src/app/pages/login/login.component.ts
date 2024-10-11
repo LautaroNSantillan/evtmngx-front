@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { Message } from 'primeng/api';
+import { LoginService } from '../../services/auth/login.service';
+import { LoginRequest } from '../../services/auth/interfaces/login-request';
 
 
 @Component({
@@ -12,6 +13,8 @@ import { Message } from 'primeng/api';
   providers: [MessageService]
 })
 export class LoginComponent {
+  loginError:string="";
+
   get getUsername(){
     return this.loginForm.get('username')//getter
   }
@@ -20,25 +23,38 @@ export class LoginComponent {
   }
 
   login(): void {
-    if (this.loginForm.valid) {
-      console.log("Login successful");
-      this.messageService.add({severity:'Success', summary:'Success', detail:'Success'})
-      this.router.navigateByUrl('/home');
-      this.loginForm.reset();
-      
+    if (this.loginForm.valid) {   
+                                         //casting?
+      this.loginService.login(this.loginForm.value as LoginRequest).subscribe({
+        next:(user)=>{
+          console.log(user);
+        },
+        error:(error)=>{
+          console.log(error);
+          this.loginError=error;
+          this.messageService.add({severity:'error', summary:'Login error', detail:error})
+        },
+        complete:()=>{
+          this.messageService.add({severity:'Success', summary:'Success', detail:'Success'})
+          this.router.navigateByUrl('/home');
+          this.loginForm.reset();
+        }
+      }) 
+
     } else {
       this.loginForm.markAllAsTouched();
-      this.messageService.add({severity:'error', summary:'Check fields', detail:'Check fields'})
     }
   }
 
   loginForm = this.formBuilder.group({
-    username: ['', [Validators.required, Validators.email, Validators.minLength(3)]],  // Group the validators into an array
+    username: ['', [Validators.required, Validators.minLength(3)]],  // Group the validators into an array
     password: ['', Validators.required]
   });
   
   constructor(
     private formBuilder: FormBuilder,
     private messageService: MessageService,
-    private router: Router){}
+    private router: Router,
+    private loginService: LoginService
+  ){}
 }

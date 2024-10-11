@@ -10,6 +10,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { LoginComponent } from './pages/login/login.component';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 // PrimeNG imports
 import { ToolbarModule } from 'primeng/toolbar';
 import { PanelModule } from 'primeng/panel';
@@ -21,6 +22,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message'; 
 import { MessagesModule } from 'primeng/messages';
 import { RippleModule } from 'primeng/ripple';
+import { ApiUrlInterceptor } from './interceptors/api-url.interceptor';
 
 
 
@@ -39,6 +41,7 @@ import { RippleModule } from 'primeng/ripple';
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
+    HttpClientModule,
     //primeng
     ToolbarModule,
     PanelModule,
@@ -50,7 +53,8 @@ import { RippleModule } from 'primeng/ripple';
     MessagesModule,
     RippleModule,
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useValue: ApiUrlInterceptor, multi: true }
+  ],  bootstrap: [AppComponent]
 })
 export class AppModule { }
