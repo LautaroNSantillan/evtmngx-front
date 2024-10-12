@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component,  OnInit } from '@angular/core';
 import { LoginService } from '../../services/auth/login.service';
 import { User } from '../../interfaces/user';
 import { Subscription } from 'rxjs';
@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
-export class DashboardComponent implements OnInit, OnDestroy{
+export class DashboardComponent implements OnInit{
   isUserLoggedIn: boolean = false;
   private isLoggedInSubscription?: Subscription;
   constructor(private loginService: LoginService) {}
@@ -22,7 +22,4 @@ export class DashboardComponent implements OnInit, OnDestroy{
 
   }
 
-  ngOnDestroy(): void {
-    this.isLoggedInSubscription?.unsubscribe();
-  }
 }

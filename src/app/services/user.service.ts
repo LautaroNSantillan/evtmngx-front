@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { User } from '../interfaces/user';
 
 @Injectable({
@@ -10,11 +10,10 @@ export class UserService {
 
   constructor(private http:HttpClient) { }
 
-  getUser(id:string):Observable<User>{
-    return this.http.get<User>("user/"+id).pipe(
-      catchError(this.handleError)
-    )
-  };
+  getUser(id: string): Observable<any> {
+    console.log("Making GET request for user ID: " + id);
+    return this.http.get("user/" + id)
+  }
 
   updateUser(id:string, firstname:string, lastname:string):Observable<string>{
     const params = new HttpParams()
@@ -22,7 +21,9 @@ export class UserService {
       .set('lastname', lastname);
     
     
-    return this.http.put<string>("user/update/"+id, {params})
+    return this.http.put<string>("user/update/"+id, {params}).pipe(
+      catchError(this.handleError)
+    )
   }
 
   private handleError(error: HttpErrorResponse){

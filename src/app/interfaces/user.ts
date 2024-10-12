@@ -1,9 +1,13 @@
+import { Comment } from "./comment";
+import { EventLocation } from "./eventLocation";
+
 export interface User {
-    id: string; 
-    firstName: string;
-    lastName: string;
+    id: string;
+    firstname: string;
+    lastname: string;
     username: string;
-    signupDate: string; 
-    authoredComments: Set<Comment>;
-    role: string; 
+    signupDate: string | null; 
+    authoredComments: Comment[];
+    attendedEvents: EventLocation[];    
+    role: string;
 }

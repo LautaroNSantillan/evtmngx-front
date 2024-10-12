@@ -5,29 +5,57 @@ import { catchError, Observable, throwError, BehaviorSubject, tap, map } from 'r
 import { LoginResponse } from './interfaces/login-response';
 import { User } from '../../interfaces/user';
 import { TokenService } from './token.service';
+import { Comment } from '@angular/compiler';
+import { UserService } from '../user.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
   isLoggedInBool: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  currentUserData: BehaviorSubject<String> = new BehaviorSubject<String>("")/* ({
+  currentUserData: BehaviorSubject<String> = new BehaviorSubject<String>("");
+  currentUserObject: BehaviorSubject<User> = new BehaviorSubject<User>({
     id: '',
-    firstName: '',
-    lastName: '',
+    firstname: '',
+    lastname: '',
     username: '',
     signupDate: '',
-    authoredComments: new Set<Comment>(),
+    authoredComments: [],  
+    attendedEvents: [],    
     role: ''
-  }); */
-  constructor(private http:HttpClient, private tokenService:TokenService) { 
+  });
+  constructor(private http:HttpClient, private tokenService:TokenService, private userService:UserService) { 
     this.isLoggedInBool = new BehaviorSubject<boolean>(sessionStorage
       .getItem('isLoggedIn')!=null);
     this.currentUserData = new BehaviorSubject<String>(sessionStorage
-      .getItem('token')|| "");
-    
+      .getItem('TOKEN')|| "");
+      const savedUser = sessionStorage.getItem('currentUser');
+      const savedToken = sessionStorage.getItem('TOKEN');
+      
+      if (savedUser && savedToken) {
+        this.isLoggedInBool.next(true);
+        this.currentUserData.next(savedToken);
+        this.currentUserObject.next(JSON.parse(savedUser)); 
+      } else {
+        this.isLoggedInBool.next(false);
+      }
   }
-
+  fetchUpdatedUser(): Observable<any> {
+    const currentUserId = this.currentUserObject.value.id;
+    console.log("User ID in fetchUpdatedUser: " + currentUserId); // Debug the user ID
+  
+    return this.userService.getUser(currentUserId)
+    .pipe(
+      tap(
+         (updatedUser) => {
+          console.log("Fetched updated user: ", updatedUser); // Debug the fetched data
+          this.currentUserObject.next(updatedUser); // Update the BehaviorSubject
+          sessionStorage.setItem('currentUser', JSON.stringify(updatedUser)); // Save to session storage
+        },
+      ),
+      catchError(this.handleError)
+    );
+  }
   get userData():Observable<String> {
     return this.currentUserData.asObservable();
   }
@@ -40,22 +68,55 @@ export class LoginService {
       .pipe(
         tap(userData => {
           if (userData && userData.user) {
-            this.tokenService.setToken(userData.jwtToken)
+            this.tokenService.setToken(userData.jwtToken);
+            this.setIsLoggedIn('true');
+            
+            sessionStorage.setItem('currentUser', JSON.stringify(userData.user));
             this.currentUserData.next(userData.jwtToken);
             this.isLoggedInBool.next(true);
+            
+            
+            this.userService.getUser(userData.user.id).subscribe({
+              next:(fullUser)=>{
+                this.currentUserObject.next(fullUser);
+                sessionStorage.setItem('currentUser', JSON.stringify(fullUser));
+              }
+            }     
+            );
           } else {
             console.error("Invalid user data:", userData);
           }
         }),
-        map((userData)=> userData.jwtToken),
+        map((userData) => userData.jwtToken),
         catchError(this.handleError)
       );
   }
 
+
   logout():void{
     this.tokenService.logout();
+    this.setIsLoggedIn('false');
     this.isLoggedInBool.next(false);
+
+    sessionStorage.removeItem('currentUser');
+    this.currentUserObject.next({
+      id: '',
+      firstname: '',
+      lastname: '',
+      username: '',
+      signupDate: '',
+      authoredComments: [],
+    attendedEvents:[],
+      role: ''
+    });
   }
+
+  setIsLoggedIn(str: string): void {
+    sessionStorage.setItem('isLoggedIn', str);
+    const isLoggedIn = (str === 'true');
+    this.isLoggedInBool.next(isLoggedIn);
+  }
+  
   
 
   private handleError(error: HttpErrorResponse){

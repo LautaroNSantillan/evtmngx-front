@@ -1,7 +1,7 @@
-export interface Location{
+export interface Location {
     line1: string;
     line2: string;
     country: string;
-    postal: number;
+    postal: string;    
     capacity: number;
 }

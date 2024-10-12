@@ -38,6 +38,7 @@ import { AvatarGroupModule } from 'primeng/avatargroup';
 import { CardModule } from 'primeng/card';
 import { JwtInterceptorService } from './interceptors/jwt-interceptor.service';
 import { ErrorInterceptorService } from './interceptors/error-interceptor.service';
+import { ExpiredService } from './interceptors/expired.service';
 
 @NgModule({
   declarations: [
@@ -95,6 +96,7 @@ import { ErrorInterceptorService } from './interceptors/error-interceptor.servic
       useClass: ErrorInterceptorService,
       multi: true,
     },
+    { provide: HTTP_INTERCEPTORS, useClass: ExpiredService, multi: true }
     
   ],  
   bootstrap: [AppComponent]

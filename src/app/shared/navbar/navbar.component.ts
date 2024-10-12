@@ -1,31 +1,38 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { Component, OnInit } from '@angular/core';
+import { MenuItem, MessageService } from 'primeng/api';
 import { LoginService } from '../../services/auth/login.service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css'] 
+  styleUrls: ['./navbar.component.css'],
+  providers: [MessageService]
 })
-export class NavbarComponent implements OnInit , OnDestroy {
+export class NavbarComponent implements OnInit {
   items: MenuItem[] = [];
   isUserLoggedIn: boolean = false;
-  loggedInSub?: Subscription;
-  constructor(private loginService: LoginService) {}
+  loggedInId: string="";
+ 
+  constructor(private loginService: LoginService, 
+    private router: Router,
+  private messageService:MessageService) {}
 
-  ngOnDestroy(): void {
-    this.loggedInSub?.unsubscribe();
-  }
 
   ngOnInit() {
-   this.loggedInSub = this.loginService.isLoggedIn.subscribe({
+  this.loginService.isLoggedIn.subscribe({
       next: (userLoggedIn) => {
         this.isUserLoggedIn = userLoggedIn;
         this.updateMenuItems(); 
       },
     });
-
+    this.loginService.currentUserObject.subscribe({
+      next:(user)=>{
+        this.loggedInId = user.id;
+        this.updateMenuItems();;
+      }
+    });
     this.updateMenuItems();
   }
 
@@ -41,8 +48,15 @@ export class NavbarComponent implements OnInit , OnDestroy {
             {
               label: 'Logout',
               icon: 'pi pi-sign-out',
-              routerLink: '/logout',
+              command: () => this.logout(),
             },
+           
+              {
+                label: 'Profile',
+                icon: 'pi pi-user',
+                routerLink: '/user/'+ this.loggedInId ,
+              },
+            
           ]
         : [
             {
@@ -94,6 +108,16 @@ export class NavbarComponent implements OnInit , OnDestroy {
       },
     ];
   }
+  logout():void{
+    this.loginService.logout();
+    this.router.navigate(["/home"]);
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Logout Successful',
+      detail: 'You have successfully logged out.',
+      life: 3000 
+    });
+    this.updateMenuItems();
+  }
 
-  
 }

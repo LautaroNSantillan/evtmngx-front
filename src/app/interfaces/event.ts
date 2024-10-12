@@ -1,9 +1,10 @@
+import { EventLocation } from "./eventLocation";
 import { User } from "./user";
 
-export interface Event{
+export interface Event {
     id: string;
     name: string;
     description: string;
-    eventLocation: Location;
-    organizer: User;
+    organizer:User;
+    eventLocations:EventLocation[];                
 }

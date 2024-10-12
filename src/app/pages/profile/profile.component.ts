@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component,  OnInit } from '@angular/core';
 import { User } from '../../interfaces/user';
 import { UserService } from '../../services/user.service';
 import { ActivatedRoute } from '@angular/router';
@@ -18,6 +18,7 @@ export class ProfileComponent implements OnInit {
   user!: User;
   loading: boolean = true;
   toEditUser:User={...this.user};
+  loggedInId?:string = "";
   
 
   constructor(private userService: UserService, 
@@ -27,6 +28,10 @@ export class ProfileComponent implements OnInit {
     this.loginService.isLoggedIn.subscribe({
       next:(bool)=>{
         this.isLoggedIn=bool;
+      }
+    });this.loginService.currentUserObject.subscribe({
+      next:(user)=>{
+        this.loggedInId = user.id;
       }
     });
   }
@@ -38,6 +43,11 @@ export class ProfileComponent implements OnInit {
         this.fetchUser(userId);
       }
     });
+    this.loginService.currentUserObject.subscribe({
+      next:(user)=>{
+        this.loggedInId = user.id;
+      }
+    })
   }
 
 
@@ -46,6 +56,7 @@ export class ProfileComponent implements OnInit {
     this.userService.getUser(id).subscribe({
       next: (user: User) => {
         this.user = user;
+        console.log(user);
         this.loading = false;
       },
       error: (err) => {
@@ -62,8 +73,9 @@ export class ProfileComponent implements OnInit {
   }
 
   saveChanges() {
-    console.log('Saving changes:', this.user);
-    this.userService.updateUser(this.user.id, this.toEditUser.firstName, this.toEditUser.lastName).subscribe({
+    if(this.isLoggedIn){
+      console.log('Saving changes:', this.user);
+    this.userService.updateUser(this.user.id, this.toEditUser.firstname, this.toEditUser.lastname).subscribe({
       next:(res)=>{
         console.log(res)
       },
@@ -75,10 +87,12 @@ export class ProfileComponent implements OnInit {
       }
     });
     this.hideModal();
+    }
+    
   }
 
   formValid() {
-    return this.user.firstName.trim() !== '' && this.user.lastName.trim() !== '';
+    return this.user.firstname.trim() !== '' && this.user.lastname.trim() !== '';
   }
 
 }

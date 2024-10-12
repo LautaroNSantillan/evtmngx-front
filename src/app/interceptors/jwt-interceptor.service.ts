@@ -8,20 +8,22 @@ import { TokenService } from '../services/auth/token.service';
 })
 export class JwtInterceptorService implements HttpInterceptor {
 
-  constructor(private tokenService:TokenService) { }
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let token:String = this.tokenService.getToken();
+  constructor(private tokenService: TokenService) { }
 
-    if (token!=""){
-      req= req.clone({
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const token: string | null = this.tokenService.getToken(); 
+
+    if (token) { 
+      console.log(token);
+      req = req.clone({
         setHeaders: {
           'Content-Type': 'application/json;charset=utf-8',
           'Accept': 'application/json',
-          'Authorization': 'Bearer ' + token,
+          'Authorization': `Bearer ${token}`, 
         }
       });
-      
     }
-    return next.handle(req);
+
+    return next.handle(req); 
   }
 }
