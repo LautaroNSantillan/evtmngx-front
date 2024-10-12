@@ -27,7 +27,7 @@ export class NavbarComponent implements OnInit {
         this.updateMenuItems(); 
       },
     });
-    this.loginService.currentUserObject.subscribe({
+    this.loginService.userObject.subscribe({
       next:(user)=>{
         this.loggedInId = user.id;
         this.updateMenuItems();;

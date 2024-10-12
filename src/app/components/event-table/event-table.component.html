@@ -65,9 +65,8 @@
         </button>
       </td>
       <td *ngIf="isLoggedIn">
-        <button (click)="toggleAttendance(event)">
-          {{ event.isAttending ? "I Won't Attend" : "I Will Attend" }}
-        </button>
+        <button *ngIf="!event.isAttending" (click)="attendEvent(event)"  label="Attend">Attend</button>
+        <button *ngIf="event.isAttending" (click)="unattendEvent(event)"  label="Unattend">Unattend</button>
       </td>
       <td *ngIf="!isLoggedIn" class="flex align-items-center justify-content-center" style="height: 100px;">
         <div class="text-center">

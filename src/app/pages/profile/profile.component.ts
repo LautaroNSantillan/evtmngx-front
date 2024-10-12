@@ -29,7 +29,7 @@ export class ProfileComponent implements OnInit {
       next:(bool)=>{
         this.isLoggedIn=bool;
       }
-    });this.loginService.currentUserObject.subscribe({
+    });this.loginService.userObject.subscribe({
       next:(user)=>{
         this.loggedInId = user.id;
       }
@@ -43,7 +43,7 @@ export class ProfileComponent implements OnInit {
         this.fetchUser(userId);
       }
     });
-    this.loginService.currentUserObject.subscribe({
+    this.loginService.userObject.subscribe({
       next:(user)=>{
         this.loggedInId = user.id;
       }

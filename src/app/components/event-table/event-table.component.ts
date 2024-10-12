@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { EventService } from '../../services/event.service';
 import { TableLazyLoadEvent } from 'primeng/table';
-import { Subject, Subscription } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { LoginService } from '../../services/auth/login.service';
 import { MessageService } from 'primeng/api';
 import { EventLocation } from '../../interfaces/eventLocation';
+import { Event } from '../../interfaces/event';
 
 @Component({
   selector: 'app-event-table',
@@ -17,6 +18,7 @@ import { EventLocation } from '../../interfaces/eventLocation';
 export class EventTableComponent implements OnInit {
   eventLocations: EventLocation[] = [];
   events: Event[] = [];
+  eventsCopy: any[] = [];
   totalEvents: number = 0;
   pageSize: number = 10;
   currentPage: number = 0;
@@ -26,6 +28,7 @@ export class EventTableComponent implements OnInit {
   loading?: boolean;
   isLoggedIn: boolean = false;
   loggedInId:string="";
+  loggedInEventIds:string[] = [];
   isErrorDisplayed = false;
 
   selectedEvent: any;
@@ -39,7 +42,17 @@ export class EventTableComponent implements OnInit {
         this.eventLocations = event.eventLocations
         this.events = event;
       }
-    })
+    });
+
+    if (this.isLoggedIn) {
+      this.getLoggedInEventIds().subscribe({
+        next: (ids) => {
+          this.loggedInEventIds = ids;
+          console.log("These are the logged in event IDs: ", this.loggedInEventIds);
+        }
+      });
+    }
+
   }
 
   ngOnInit(): void {
@@ -68,13 +81,30 @@ export class EventTableComponent implements OnInit {
       }
     });
 
-    this.loginService.currentUserObject.subscribe({
+    this.loginService.userObject.subscribe({
       next: (user) => {
         this.loggedInId = user.id;
       }
     });
+
+    if (this.isLoggedIn) {
+      this.getLoggedInEventIds().subscribe({
+        next: (ids) => {
+          this.loggedInEventIds = ids;
+          console.log("These are the logged in event IDs: ", this.loggedInEventIds);
+        }
+      });
+    }
     
   }
+
+  updateAttendanceStatus(): void {
+  this.events.forEach((event) => {
+    const eventIdString = event.eventLocations[0].id.toString();
+    event.isAttending = this.loggedInEventIds.includes(eventIdString);
+    console.log("Updated attendance for event:", event.name, event.isAttending);
+  });
+}
 
 
   loadEvents(event: TableLazyLoadEvent): void {
@@ -89,46 +119,80 @@ export class EventTableComponent implements OnInit {
       this.events = response.content;
       this.totalEvents = response.totalElements;
       this.loading=false;
+      this.updateAttendanceStatus()
     });
   }
 
-  toggleAttendance(event: any) {
-    if (!event.isAttending) {
-      this.eventService.attendEvent(this.loggedInId, event.eventLocations[0].id).subscribe({
-        next: (response) => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Attendance Confirmed',
-            detail: `You are now attending ${event.name}`,
-            life: 3000
-          });
-        },
-        error: (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: `Could not attend ${event.name}. Please try again.`,
-            life: 3000
-          });
-          console.error(err);
-        }
-      });
-    } else {
-      this.eventService.unattendEvent(this.loggedInId, event.eventLocations[0].id).subscribe({
-        next: () => {
-          this.messageService.add({
-            severity: 'info',
-            summary: 'Unattended Event',
-            detail: `You have opted out of attending ${event.name}`,
-            life: 3000
-          });
-        },
-      });
-    }
-    this.loginService.fetchUpdatedUser();
-    event.isAttending = !event.isAttending;
-    console.log(`${event.isAttending ? 'Attending' : 'Not Attending'}: ${event.name}`);
+  attendEvent(event: Event): void {
+    this.eventService.attendEvent(this.loggedInId, event.eventLocations[0].id).subscribe({
+      next: () => {
+        event.isAttending = true;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Attendance Confirmed',
+          detail: `You are now attending ${event.name}`,
+          life: 3000
+        });
+        this.loginService.fetchUpdatedUser().subscribe({
+          next: (updatedUser) => {
+            // After fetching the updated user, refresh the attended event IDs
+            this.getLoggedInEventIds().subscribe({
+              next: (updatedEventIds) => {
+                this.loggedInEventIds = updatedEventIds;
+                this.updateAttendanceStatus();
+              }
+            });
+          }
+        });
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `Could not attend ${event.name}. Please try again.`,
+          life: 3000
+        });
+        console.error(err);
+      }
+    });
   }
+
+  
+  unattendEvent(event: Event): void {
+    this.eventService.unattendEvent(this.loggedInId, event.eventLocations[0].id).subscribe({
+      next: () => {
+        event.isAttending = false;
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Unattended Event',
+          detail: `You have opted out of attending ${event.name}`,
+          life: 3000
+        });
+  
+       
+        this.loginService.fetchUpdatedUser().subscribe({
+          next: (updatedUser) => {
+            this.getLoggedInEventIds().subscribe({
+              next: (updatedEventIds) => {
+                this.loggedInEventIds = updatedEventIds;
+                this.updateAttendanceStatus();
+              }
+            });
+          }
+        });
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `Could not unattend ${event.name}. Please try again.`,
+          life: 3000
+        });
+        console.error(err);
+      }
+    });
+  }
+  
   
   onSearchChange(value: string) {
     console.log(this.searchKeyword);
@@ -140,6 +204,21 @@ export class EventTableComponent implements OnInit {
       next: (userLoggedIn) => {
         this.isLoggedIn = userLoggedIn;
       },
+    });
+  }
+
+  getLoggedInEventIds(): Observable<string[]> {
+    return new Observable<string[]>((observer) => {
+      this.loginService.userObject.subscribe({
+        next: (user) => {
+          let ids: string[] = user.attendedEvents.map((event) => event.id);
+          observer.next(ids);
+          observer.complete();
+        },
+        error: (err) => {
+          observer.error(err);
+        }
+      });
     });
   }
 

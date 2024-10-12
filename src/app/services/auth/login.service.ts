@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { LoginRequest } from './interfaces/login-request';
 import { HttpClient, HttpErrorResponse} from '@angular/common/http';
-import { catchError, Observable, throwError, BehaviorSubject, tap, map } from 'rxjs';
+import { catchError, Observable, throwError, BehaviorSubject, tap, map, switchMap, of } from 'rxjs';
 import { LoginResponse } from './interfaces/login-response';
 import { User } from '../../interfaces/user';
 import { TokenService } from './token.service';
@@ -13,6 +13,7 @@ import { UserService } from '../user.service';
 })
 export class LoginService {
   isLoggedInBool: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  loggedInIdSubject: BehaviorSubject<String> = new BehaviorSubject<String>("");
   currentUserData: BehaviorSubject<String> = new BehaviorSubject<String>("");
   currentUserObject: BehaviorSubject<User> = new BehaviorSubject<User>({
     id: '',
@@ -31,36 +32,50 @@ export class LoginService {
       .getItem('TOKEN')|| "");
       const savedUser = sessionStorage.getItem('currentUser');
       const savedToken = sessionStorage.getItem('TOKEN');
+      const savedId = sessionStorage.getItem('id');
+
       
       if (savedUser && savedToken) {
+        this.fetchUpdatedUser();
         this.isLoggedInBool.next(true);
         this.currentUserData.next(savedToken);
-        this.currentUserObject.next(JSON.parse(savedUser)); 
+        this.currentUserObject.next(JSON.parse(savedUser));
+        this.loggedInIdSubject.next(savedId!);
       } else {
         this.isLoggedInBool.next(false);
       }
   }
-  fetchUpdatedUser(): Observable<any> {
-    const currentUserId = this.currentUserObject.value.id;
-    console.log("User ID in fetchUpdatedUser: " + currentUserId); // Debug the user ID
-  
-    return this.userService.getUser(currentUserId)
-    .pipe(
-      tap(
-         (updatedUser) => {
-          console.log("Fetched updated user: ", updatedUser); // Debug the fetched data
-          this.currentUserObject.next(updatedUser); // Update the BehaviorSubject
-          sessionStorage.setItem('currentUser', JSON.stringify(updatedUser)); // Save to session storage
-        },
-      ),
-      catchError(this.handleError)
+  fetchUpdatedUser(): Observable<string> {
+    return this.id.pipe(
+      switchMap((id) => {
+        console.log("Fetching user with ID: " + id);
+        return this.userService.getUser(id as string);
+      }),
+      tap((updatedUser) => {
+        console.log("Updated user: ", updatedUser);
+        this.currentUserObject.next(updatedUser);
+        sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      }),
+      map(() => 'updated'), 
+      catchError((error) => {
+        console.error("Error fetching user:", error);
+        return of('error');  
+      })
     );
   }
+  
   get userData():Observable<String> {
     return this.currentUserData.asObservable();
   }
   get isLoggedIn():Observable<boolean> {
     return this.isLoggedInBool.asObservable();
+  }
+
+  get userObject(): Observable<User>{
+    return this.currentUserObject.asObservable();
+  }
+  get id(): Observable<String>{
+    return this.loggedInIdSubject.asObservable();
   }
 
   login(credentials: LoginRequest): Observable<string> {
@@ -74,7 +89,8 @@ export class LoginService {
             sessionStorage.setItem('currentUser', JSON.stringify(userData.user));
             this.currentUserData.next(userData.jwtToken);
             this.isLoggedInBool.next(true);
-            
+            sessionStorage.setItem('id', userData.user.id);
+            this.loggedInIdSubject.next(userData.user.id);
             
             this.userService.getUser(userData.user.id).subscribe({
               next:(fullUser)=>{

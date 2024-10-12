@@ -6,5 +6,6 @@ export interface Event {
     name: string;
     description: string;
     organizer:User;
-    eventLocations:EventLocation[];                
+    eventLocations:EventLocation[];   
+    isAttending?: boolean;             
 }
