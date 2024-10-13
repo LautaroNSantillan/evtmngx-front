@@ -1,0 +1,45 @@
+<p-messages [enableService]="true"></p-messages>
+
+<p-card header="Create Event">
+    <form #eventForm="ngForm" (ngSubmit)="onSubmit(eventForm)">
+        <div class="p-fluid">
+            
+            <div class="p-field">
+                <label for="eventName">Event Name</label>
+                <input id="eventName" type="text" pInputText [(ngModel)]="event.name" name="eventName" required />
+            </div>
+
+            
+            <div class="p-field">
+                <label for="eventDate">Event Date</label>
+                <p-calendar id="eventDate" [(ngModel)]="event.date" name="eventDate" dateFormat="mm/dd/yy" showIcon required></p-calendar>
+            </div>
+
+            
+            <div class="p-field">
+                <label for="eventTime">Event Time</label>
+                <p-dropdown 
+                    id="eventTime" 
+                    [options]="timeOptions" 
+                    [(ngModel)]="event.time" 
+                    placeholder="Select Event Time" 
+                    optionLabel="label" 
+                    name="eventTime" 
+                    required>
+                </p-dropdown>
+            </div>
+
+            
+            <div class="p-field">
+                <label for="eventDescription">Description</label>
+                <textarea id="eventDescription" pInputTextarea [(ngModel)]="event.description" name="eventDescription" rows="5" required></textarea>
+            </div>
+
+           
+            <div class="p-field">
+                <button pButton type="submit" label="Create Event" [disabled]="!eventForm.valid"></button>
+            </div>
+        </div>
+    </form>
+</p-card>
+

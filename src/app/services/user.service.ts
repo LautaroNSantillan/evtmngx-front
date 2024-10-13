@@ -11,9 +11,17 @@ export class UserService {
   constructor(private http:HttpClient) { }
 
   getUser(id: string): Observable<any> {
-    console.log("Making GET request for user ID: " + id);
     return this.http.get("user/" + id)
   }
+
+  getAllUsers(): Observable<any> {
+    return this.http.get("user/all")
+  }
+
+  toggleAdmin(userId: string): Observable<String> {
+    return this.http.post<String>(`user/updateRole/${userId}`, {});
+  }
+  
 
   updateUser(id:string, firstname:string, lastname:string):Observable<string>{
     const params = new HttpParams()

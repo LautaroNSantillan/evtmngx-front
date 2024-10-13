@@ -48,7 +48,6 @@ export class EventTableComponent implements OnInit {
       this.getLoggedInEventIds().subscribe({
         next: (ids) => {
           this.loggedInEventIds = ids;
-          console.log("These are the logged in event IDs: ", this.loggedInEventIds);
         }
       });
     }
@@ -91,7 +90,6 @@ export class EventTableComponent implements OnInit {
       this.getLoggedInEventIds().subscribe({
         next: (ids) => {
           this.loggedInEventIds = ids;
-          console.log("These are the logged in event IDs: ", this.loggedInEventIds);
         }
       });
     }
@@ -102,7 +100,6 @@ export class EventTableComponent implements OnInit {
   this.events.forEach((event) => {
     const eventIdString = event.eventLocations[0].id.toString();
     event.isAttending = this.loggedInEventIds.includes(eventIdString);
-    console.log("Updated attendance for event:", event.name, event.isAttending);
   });
 }
 
@@ -115,7 +112,6 @@ export class EventTableComponent implements OnInit {
     let sort = event.sortOrder === 1 ? true : false;
 
     this.eventService.sortedEvents(this.currentPage, this.pageSize, sort).subscribe((response) => {
-      console.log(response);
       this.events = response.content;
       this.totalEvents = response.totalElements;
       this.loading=false;
@@ -135,7 +131,6 @@ export class EventTableComponent implements OnInit {
         });
         this.loginService.fetchUpdatedUser().subscribe({
           next: (updatedUser) => {
-            // After fetching the updated user, refresh the attended event IDs
             this.getLoggedInEventIds().subscribe({
               next: (updatedEventIds) => {
                 this.loggedInEventIds = updatedEventIds;
@@ -195,7 +190,6 @@ export class EventTableComponent implements OnInit {
   
   
   onSearchChange(value: string) {
-    console.log(this.searchKeyword);
     this.searchSubject.next(value);
   }
 
@@ -227,12 +221,19 @@ export class EventTableComponent implements OnInit {
     return description.length > maxLength ? description.substring(0, maxLength) + '...' : description;
   }
 
+  truncateId(id: string): string {
+    return id.substring(0, 15) + '...';
+  }
+
 
   viewDetails(event: any) {
     this.selectedEvent = event; 
     this.displayEventDetails = true; 
-    console.log('Viewing details for:', event);
+  }
 
+  isUpcoming(event: any): boolean {
+    const today = new Date();
+    return new Date(event.eventLocations[0].date) > today;
   }
 
   onCloseDetails() {

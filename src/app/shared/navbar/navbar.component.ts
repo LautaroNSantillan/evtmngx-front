@@ -13,26 +13,46 @@ import { Router } from '@angular/router';
 export class NavbarComponent implements OnInit {
   items: MenuItem[] = [];
   isUserLoggedIn: boolean = false;
-  loggedInId: string="";
- 
-  constructor(private loginService: LoginService, 
-    private router: Router,
-  private messageService:MessageService) {}
+  loggedInId: string = "";
+  userRoles: string[] = [];
+  isAdmin: boolean = false;
+  isOrganizer: boolean = false;
 
+  constructor(private loginService: LoginService, 
+              private router: Router,
+              private messageService: MessageService) {}
 
   ngOnInit() {
-  this.loginService.isLoggedIn.subscribe({
+    this.loginService.isLoggedIn.subscribe({
       next: (userLoggedIn) => {
         this.isUserLoggedIn = userLoggedIn;
-        this.updateMenuItems(); 
+        this.updateMenuItems();
       },
     });
+
     this.loginService.userObject.subscribe({
-      next:(user)=>{
+      next: (user) => {
         this.loggedInId = user.id;
-        this.updateMenuItems();;
+        this.userRoles = user.roles || [];
+        this.updateMenuItems();
       }
     });
+
+    this.loginService.isAdmin.subscribe({
+      next: (isAdmin) => {
+        this.isAdmin = isAdmin;
+        this.updateMenuItems();  
+      }
+    });
+  
+    this.loginService.isOrganizer.subscribe({
+      next: (isOrganizer) => {
+        this.isOrganizer = isOrganizer;
+        this.updateMenuItems();  
+      }
+    });
+  
+    
     this.updateMenuItems();
   }
 
@@ -50,13 +70,31 @@ export class NavbarComponent implements OnInit {
               icon: 'pi pi-sign-out',
               command: () => this.logout(),
             },
-           
-              {
-                label: 'Profile',
-                icon: 'pi pi-user',
-                routerLink: '/user/'+ this.loggedInId ,
-              },
+            {
+              label: 'Profile',
+              icon: 'pi pi-user',
+              routerLink: '/user/' + this.loggedInId,
+            },
             
+            ...(this.isAdmin
+              ? [
+                  {
+                    label: 'Admin Panel',
+                    icon: 'pi pi-shield',
+                    routerLink: '/admin-panel',
+                  }
+                ]
+              : []),
+            
+            ...(this.isOrganizer
+              ? [
+                  {
+                    label: 'Organizer Panel',
+                    icon: 'pi pi-calendar',
+                    routerLink: '/organizer-panel',
+                  }
+                ]
+              : []),
           ]
         : [
             {
@@ -70,54 +108,19 @@ export class NavbarComponent implements OnInit {
               routerLink: '/register',
             },
           ]),
-      {
-        label: 'Projects',
-        icon: 'pi pi-search',
-        items: [
-          {
-            label: 'Components',
-            icon: 'pi pi-bolt',
-          },
-          {
-            label: 'Blocks',
-            icon: 'pi pi-server',
-          },
-          {
-            label: 'UI Kit',
-            icon: 'pi pi-pencil',
-          },
-          {
-            label: 'Templates',
-            icon: 'pi pi-palette',
-            items: [
-              {
-                label: 'Apollo',
-                icon: 'pi pi-palette',
-              },
-              {
-                label: 'Ultima',
-                icon: 'pi pi-palette',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        label: 'Contact',
-        icon: 'pi pi-envelope',
-      },
     ];
   }
-  logout():void{
+  
+
+  logout(): void {
     this.loginService.logout();
-    this.router.navigate(["/home"]);
+    this.router.navigate(['/home']);
     this.messageService.add({
       severity: 'info',
       summary: 'Logout Successful',
       detail: 'You have successfully logged out.',
-      life: 3000 
+      life: 3000
     });
     this.updateMenuItems();
   }
-
 }

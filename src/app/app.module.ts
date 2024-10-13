@@ -39,6 +39,10 @@ import { CardModule } from 'primeng/card';
 import { JwtInterceptorService } from './interceptors/jwt-interceptor.service';
 import { ErrorInterceptorService } from './interceptors/error-interceptor.service';
 import { ExpiredService } from './interceptors/expired.service';
+import { AdminPanelComponent } from './pages/admin-panel/admin-panel.component';
+import { OrganizerPanelComponent } from './pages/organizer-panel/organizer-panel.component';
+import { DropdownModule } from 'primeng/dropdown';
+
 
 @NgModule({
   declarations: [
@@ -51,7 +55,9 @@ import { ExpiredService } from './interceptors/expired.service';
     RegisterComponent,
     EventTableComponent,
     EventDetailsComponent,
-    ProfileComponent
+    ProfileComponent,
+    AdminPanelComponent,
+    OrganizerPanelComponent
   ],
   imports: [
     BrowserModule,
@@ -78,7 +84,8 @@ import { ExpiredService } from './interceptors/expired.service';
     DialogModule,
     AvatarModule,
     AvatarGroupModule,
-    CardModule
+    CardModule,
+    DropdownModule
   ],
   providers: [
     {

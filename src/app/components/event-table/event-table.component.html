@@ -49,13 +49,14 @@
       <th>Description</th>
       <th>Organizer</th>
       <th>Details</th>
+      <th>Status</th>
       <th>Attendance</th>
     </tr>
   </ng-template>
 
   <ng-template pTemplate="body" let-event >
     <tr>
-      <td>{{ truncateDescription(event.id) }}</td>
+      <td>{{ truncateId(event.id) }}</td>
       <td>{{ event.name }}</td>
       <td>{{ truncateDescription(event.description) }}</td>
       <td>{{ event.organizer.username }}</td>
@@ -63,6 +64,10 @@
         <button (click)="viewDetails(event)">
           <i class="pi pi-info-circle"></i>
         </button>
+      </td>
+      <td> 
+        <p-tag *ngIf="isUpcoming(event)" value="Upcoming" severity="success"></p-tag>
+        <p-tag *ngIf="!isUpcoming(event)" value="Past" severity="danger"></p-tag>
       </td>
       <td *ngIf="isLoggedIn">
         <button *ngIf="!event.isAttending" (click)="attendEvent(event)"  label="Attend">Attend</button>

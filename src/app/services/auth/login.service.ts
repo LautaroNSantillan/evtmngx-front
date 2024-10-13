@@ -13,6 +13,9 @@ import { UserService } from '../user.service';
 })
 export class LoginService {
   isLoggedInBool: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  isAdminSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  isOrganizerSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
   loggedInIdSubject: BehaviorSubject<String> = new BehaviorSubject<String>("");
   currentUserData: BehaviorSubject<String> = new BehaviorSubject<String>("");
   currentUserObject: BehaviorSubject<User> = new BehaviorSubject<User>({
@@ -23,28 +26,30 @@ export class LoginService {
     signupDate: '',
     authoredComments: [],  
     attendedEvents: [],    
-    role: ''
+    roles: []
   });
-  constructor(private http:HttpClient, private tokenService:TokenService, private userService:UserService) { 
-    this.isLoggedInBool = new BehaviorSubject<boolean>(sessionStorage
-      .getItem('isLoggedIn')!=null);
-    this.currentUserData = new BehaviorSubject<String>(sessionStorage
-      .getItem('TOKEN')|| "");
-      const savedUser = sessionStorage.getItem('currentUser');
-      const savedToken = sessionStorage.getItem('TOKEN');
-      const savedId = sessionStorage.getItem('id');
+
+  constructor(private http: HttpClient, private tokenService: TokenService, private userService: UserService) {
+    
+    const savedUser = sessionStorage.getItem('currentUser');
+    const savedToken = sessionStorage.getItem('TOKEN');
+    const savedId = sessionStorage.getItem('id');
+
+    
+    if (savedUser && savedToken) {
+      this.fetchUpdatedUser();
+      this.isLoggedInBool.next(true);
+      this.currentUserData.next(savedToken);
+      this.currentUserObject.next(JSON.parse(savedUser));
+      this.loggedInIdSubject.next(savedId!);
 
       
-      if (savedUser && savedToken) {
-        this.fetchUpdatedUser();
-        this.isLoggedInBool.next(true);
-        this.currentUserData.next(savedToken);
-        this.currentUserObject.next(JSON.parse(savedUser));
-        this.loggedInIdSubject.next(savedId!);
-      } else {
-        this.isLoggedInBool.next(false);
-      }
+      this.checkRoles();
+    } else {
+      this.isLoggedInBool.next(false);
+    }
   }
+
   fetchUpdatedUser(): Observable<string> {
     return this.id.pipe(
       switchMap((id) => {
@@ -55,26 +60,46 @@ export class LoginService {
         console.log("Updated user: ", updatedUser);
         this.currentUserObject.next(updatedUser);
         sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
+        this.checkRoles(); 
       }),
-      map(() => 'updated'), 
+      map(() => 'updated'),
       catchError((error) => {
         console.error("Error fetching user:", error);
-        return of('error');  
+        return of('error');
       })
     );
   }
-  
-  get userData():Observable<String> {
+
+  private checkRoles() {
+    const user = this.currentUserObject.value;
+    console.log("User roles: ", user.roles);
+    this.isAdminSubject.next(user.roles.includes('ADMIN'));
+    this.isOrganizerSubject.next(user.roles.includes('ORGANIZER'));
+    console.log("Is Admin: ", this.isAdminSubject.value);  
+    console.log("Is Organizer: ", this.isOrganizerSubject.value);  
+  }
+
+  get isAdmin(): Observable<boolean> {
+    return this.isAdminSubject.asObservable();
+  }
+
+  get isOrganizer(): Observable<boolean> {
+    return this.isOrganizerSubject.asObservable();
+  }
+
+  get userData(): Observable<String> {
     return this.currentUserData.asObservable();
   }
-  get isLoggedIn():Observable<boolean> {
+
+  get isLoggedIn(): Observable<boolean> {
     return this.isLoggedInBool.asObservable();
   }
 
-  get userObject(): Observable<User>{
+  get userObject(): Observable<User> {
     return this.currentUserObject.asObservable();
   }
-  get id(): Observable<String>{
+
+  get id(): Observable<String> {
     return this.loggedInIdSubject.asObservable();
   }
 
@@ -85,20 +110,26 @@ export class LoginService {
           if (userData && userData.user) {
             this.tokenService.setToken(userData.jwtToken);
             this.setIsLoggedIn('true');
-            
+
             sessionStorage.setItem('currentUser', JSON.stringify(userData.user));
             this.currentUserData.next(userData.jwtToken);
             this.isLoggedInBool.next(true);
             sessionStorage.setItem('id', userData.user.id);
             this.loggedInIdSubject.next(userData.user.id);
-            
+
             this.userService.getUser(userData.user.id).subscribe({
-              next:(fullUser)=>{
+              next: (fullUser) => {
+                console.log("Full User Object: ", fullUser);
                 this.currentUserObject.next(fullUser);
                 sessionStorage.setItem('currentUser', JSON.stringify(fullUser));
+
+                
+                this.checkRoles();  
+              },
+              error: (error) => {
+                console.error("Error fetching user:", error);
               }
-            }     
-            );
+            });
           } else {
             console.error("Invalid user data:", userData);
           }
@@ -108,8 +139,7 @@ export class LoginService {
       );
   }
 
-
-  logout():void{
+  logout(): void {
     this.tokenService.logout();
     this.setIsLoggedIn('false');
     this.isLoggedInBool.next(false);
@@ -122,8 +152,8 @@ export class LoginService {
       username: '',
       signupDate: '',
       authoredComments: [],
-    attendedEvents:[],
-      role: ''
+      attendedEvents: [],
+      roles: []
     });
   }
 
@@ -132,14 +162,12 @@ export class LoginService {
     const isLoggedIn = (str === 'true');
     this.isLoggedInBool.next(isLoggedIn);
   }
-  
-  
 
-  private handleError(error: HttpErrorResponse){
+  private handleError(error: HttpErrorResponse) {
     console.error("Full error object:", error);
-    if(error.status === 0){
+    if (error.status === 0) {
       console.error("Network error:", error.error);
-    }else{
+    } else {
       console.error("Backend error:", error.status, error.error);
     }
     return throwError(() => new Error("Something went wrong. Try again."));

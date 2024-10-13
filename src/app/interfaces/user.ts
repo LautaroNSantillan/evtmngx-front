@@ -9,5 +9,5 @@ export interface User {
     signupDate: string | null; 
     authoredComments: Comment[];
     attendedEvents: EventLocation[];    
-    role: string;
+    roles: string[];
 }
